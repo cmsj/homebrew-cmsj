@@ -18,7 +18,7 @@ class Vim < Formula
   option "with-override-system-vi", "Override system vi"
   option "with-gettext", "Build vim with National Language Support (translated messages, keymaps)"
   option "with-client-server", "Enable client/server mode"
-  option "with-system-interps", "Build vim using the macOS versions of Python, Perl and Ruby"
+  option "with-system-interps", "Build vim using the macOS versions of Perl and Ruby"
 
   LANGUAGES_OPTIONAL = %w[lua python@2 tcl].freeze
   LANGUAGES_DEFAULT  = %w[python].freeze
@@ -33,7 +33,7 @@ class Vim < Formula
 
   depends_on "perl" unless build.with? "system-interps"
   depends_on "ruby" unless build.with? "system-interps"
-  depends_on "python" => :recommended if (build.without? "python@2" and build.without? "system-interps")
+  depends_on "python" => :recommended if build.without? "python@2"
   depends_on "gettext" => :optional
   depends_on "lua" => :optional
   depends_on "luajit" => :optional
@@ -54,14 +54,10 @@ class Vim < Formula
 
     opts = ["--enable-perlinterp", "--enable-rubyinterp"]
 
-    if build.with? "system-interps"
-      opts << "--enable-pythoninterp"
-    else
-      (LANGUAGES_OPTIONAL + LANGUAGES_DEFAULT).each do |language|
-        feature = { "python" => "python3", "python@2" => "python" }
-        if build.with? language
-          opts << "--enable-#{feature.fetch(language, language)}interp"
-        end
+    (LANGUAGES_OPTIONAL + LANGUAGES_DEFAULT).each do |language|
+      feature = { "python" => "python3", "python@2" => "python" }
+      if build.with? language
+        opts << "--enable-#{feature.fetch(language, language)}interp"
       end
     end
 
